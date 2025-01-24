@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .. import crud, schemas
-from ..database import get_db
+from ..base_router import get_db  # Correct relative import
+from ..models import BooksBook  # Reflected model for books
 
 router = APIRouter()
 
-@router.get("/", response_model=list[schemas.Book])
-def get_books(db: Session = Depends(get_db)):
-    return crud.get_books(db)
+@router.get("/")
+def read_books(db: Session = Depends(get_db)):
+    """Fetch all books."""
+    return db.query(BooksBook).all()
 
-@router.post("/", response_model=schemas.Book)
-def create_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
-    return crud.create_book(db, book)
+@router.get("/{book_id}")
+def read_book_by_id(book_id: int, db: Session = Depends(get_db)):
+    """Fetch a single book by ID."""
+    book = db.query(BooksBook).filter(BooksBook.id == book_id).first()
+    if not book:
+        raise HTTPException(status_code=404, detail="Book not found")
+    return book

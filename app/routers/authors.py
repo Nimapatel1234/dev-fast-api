@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from .. import crud, schemas
-from ..database import get_db
+from ..base_router import get_db  # Database session dependency
+from ..models import BooksAuthor  # Reflected model for authors
 
 router = APIRouter()
 
-@router.get("/", response_model=list[schemas.Author])
-def get_authors(db: Session = Depends(get_db)):
-    return crud.get_authors(db)
+@router.get("/")
+def read_authors(db: Session = Depends(get_db)):
+    """Fetch all authors."""
+    return db.query(BooksAuthor).all()
 
-@router.post("/", response_model=schemas.Author)
-def create_author(author: schemas.AuthorCreate, db: Session = Depends(get_db)):
-    return crud.create_author(db, author)
+@router.get("/{author_id}")
+def read_author_by_id(author_id: int, db: Session = Depends(get_db)):
+    """Fetch a single author by ID."""
+    author = db.query(BooksAuthor).filter(BooksAuthor.id == author_id).first()
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found")
+    return author

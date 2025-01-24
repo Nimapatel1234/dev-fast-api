@@ -1,66 +1,46 @@
 from sqlalchemy.orm import Session
-from . import models, schemas
+from .models import (
+    AuthUser, AuthGroup, AuthPermission, BooksBook, BooksAuthor,
+    BooksBookshelf, BooksSubject
+)
 
-# Books
-def get_books(db: Session):
-    return db.query(models.Book).all()
-
-def create_book(db: Session, book: schemas.BookCreate):
-    db_book = models.Book(title=book.title)
-    db.add(db_book)
-    db.commit()
-    db.refresh(db_book)
-    return db_book
-
-# Authors
-def get_authors(db: Session):
-    return db.query(models.Author).all()
-
-def create_author(db: Session, author: schemas.AuthorCreate):
-    db_author = models.Author(name=author.name)
-    db.add(db_author)
-    db.commit()
-    db.refresh(db_author)
-    return db_author
-
-# Users
+# Get all users
 def get_users(db: Session):
-    return db.query(models.User).all()
+    return db.query(AuthUser).all()
 
+# Get a single user by ID
 def get_user_by_id(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(AuthUser).filter(AuthUser.id == user_id).first()
 
-def create_user(db: Session, user: schemas.UserCreate):
-    db_user = models.User(username=user.username, email=user.email)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+# Get all books
+def get_books(db: Session):
+    return db.query(BooksBook).all()
 
-# Groups
+# Get all authors
+def get_authors(db: Session):
+    return db.query(BooksAuthor).all()
+
+# Get all groups
 def get_groups(db: Session):
-    return db.query(models.Group).all()
+    return db.query(AuthGroup).all()
 
-def get_group_by_id(db: Session, group_id: int):
-    return db.query(models.Group).filter(models.Group.id == group_id).first()
-
-def create_group(db: Session, group: schemas.GroupCreate):
-    db_group = models.Group(name=group.name)
-    db.add(db_group)
-    db.commit()
-    db.refresh(db_group)
-    return db_group
-
-# Permissions
+# Get all permissions
 def get_permissions(db: Session):
-    return db.query(models.Permission).all()
+    return db.query(AuthPermission).all()
 
-def get_permission_by_id(db: Session, permission_id: int):
-    return db.query(models.Permission).filter(models.Permission.id == permission_id).first()
+# Get all bookshelves
+def get_bookshelves(db: Session):
+    return db.query(BooksBookshelf).all()
 
-def create_permission(db: Session, permission: schemas.PermissionCreate):
-    db_permission = models.Permission(name=permission.name)
-    db.add(db_permission)
-    db.commit()
-    db.refresh(db_permission)
-    return db_permission
+# Get all subjects
+def get_subjects(db: Session):
+    return db.query(BooksSubject).all()
+
+
+# Get all subjects
+def get_all_subjects(db: Session):
+    return db.query(BooksSubject).all()
+
+# Get all book-subject relationships
+def get_book_subjects(db: Session):
+    return db.query(BooksBookSubjects).all()

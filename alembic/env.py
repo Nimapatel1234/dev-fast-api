@@ -78,30 +78,105 @@
 #     run_migrations_online()
 
 
+# from logging.config import fileConfig
+# from sqlalchemy import engine_from_config, pool
+# from alembic import context
+# import os
+# from dotenv import load_dotenv
+
+# # Load environment variables from .env
+# load_dotenv()
+
+# # Alembic Config object
+# config = context.config
+
+# # Override the `sqlalchemy.url` in the alembic.ini with DATABASE_URL from .env
+# config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
+
+# # Interpret the config file for Python logging
+# if config.config_file_name is not None:
+#     fileConfig(config.config_file_name)
+
+# # Import models and metadata
+# from app.models import Base  # Update the import path if needed
+# target_metadata = Base.metadata
+
+# def run_migrations_offline() -> None:
+#     """Run migrations in 'offline' mode."""
+#     url = config.get_main_option("sqlalchemy.url")
+#     context.configure(
+#         url=url,
+#         target_metadata=target_metadata,
+#         literal_binds=True,
+#         dialect_opts={"paramstyle": "named"},
+#     )
+
+#     with context.begin_transaction():
+#         context.run_migrations()
+
+
+# def run_migrations_online() -> None:
+#     """Run migrations in 'online' mode."""
+#     connectable = engine_from_config(
+#         config.get_section(config.config_ini_section, {}),
+#         prefix="sqlalchemy.",
+#         poolclass=pool.NullPool,
+#     )
+
+#     with connectable.connect() as connection:
+#         context.configure(
+#             connection=connection, target_metadata=target_metadata
+#         )
+
+#         with context.begin_transaction():
+#             context.run_migrations()
+
+
+# if context.is_offline_mode():
+#     run_migrations_offline()
+# else:
+#     run_migrations_online()
+
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
-import os
+from app.database import engine, metadata  # Import your metadata
 from dotenv import load_dotenv
+import os
 
-# Load environment variables from .env
+# Load environment variables
 load_dotenv()
 
 # Alembic Config object
 config = context.config
 
-# Override the `sqlalchemy.url` in the alembic.ini with DATABASE_URL from .env
+# Override sqlalchemy.url in alembic.ini with DATABASE_URL from .env
 config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL"))
 
 # Interpret the config file for Python logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Import models and metadata
-from app.models import Base  # Update the import path if needed
-target_metadata = Base.metadata
+# Use metadata for reflection
+target_metadata = metadata
 
-def run_migrations_offline() -> None:
+# Exclude existing tables from autogeneration
+def include_object(obj, name, type_, reflected, compare_to):
+    excluded_tables = [
+        "books_subject",
+        "books_book_subjects",
+        "auth_user",
+        "auth_group",
+        "auth_permission",
+        "auth_user_groups",
+        "auth_user_user_permissions",
+    ]
+    # Exclude listed tables
+    if name in excluded_tables:
+        return False
+    return True
+
+def run_migrations_offline():
     """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -109,13 +184,14 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_object=include_object,  # Exclude tables
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
 
-def run_migrations_online() -> None:
+def run_migrations_online():
     """Run migrations in 'online' mode."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
@@ -125,7 +201,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_object=include_object,  # Exclude tables
         )
 
         with context.begin_transaction():

@@ -1,26 +1,25 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, MetaData
+from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
-# Database URL from .env
+# Database connection URL
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Create database engine
+# Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
+
+# Initialize session maker
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for models
+# Base class for declarative models
 Base = declarative_base()
 
-# Dependency to get database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Create MetaData object
+metadata = MetaData()
+
+# Reflect existing database schema
+metadata.reflect(bind=engine)

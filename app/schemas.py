@@ -1,33 +1,7 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
-# Author Schemas
-class AuthorBase(BaseModel):
-    name: str
-
-class AuthorCreate(AuthorBase):
-    pass
-
-class Author(AuthorBase):
-    id: int
-    books: List["Book"] = []
-    class Config:
-        from_attributes = True 
-
-# Book Schemas
-class BookBase(BaseModel):
-    title: str
-
-class BookCreate(BookBase):
-    pass
-
-class Book(BookBase):
-    id: int
-    authors: List[Author] = []
-    class Config:
-        from_attributes = True 
-
-# User Schemas
+# Schema for Users
 class UserBase(BaseModel):
     username: str
     email: str
@@ -38,10 +12,9 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     class Config:
-        from_attributes = True 
-        
-        
-# Group Schemas
+        from_attributes = True  # For compatibility with SQLAlchemy models
+
+# Schema for Groups
 class GroupBase(BaseModel):
     name: str
 
@@ -51,9 +24,9 @@ class GroupCreate(GroupBase):
 class Group(GroupBase):
     id: int
     class Config:
-        from_attributes = True 
+        from_attributes = True
 
-# Permission Schemas
+# Schema for Permissions
 class PermissionBase(BaseModel):
     name: str
 
@@ -63,5 +36,54 @@ class PermissionCreate(PermissionBase):
 class Permission(PermissionBase):
     id: int
     class Config:
-        from_attributes = True 
+        from_attributes = True
 
+# Schema for Authors
+class AuthorBase(BaseModel):
+    name: str
+
+class AuthorCreate(AuthorBase):
+    pass
+
+class Author(AuthorBase):
+    id: int
+    books: List["Book"] = []
+    class Config:
+        from_attributes = True
+
+# Schema for Books
+class BookBase(BaseModel):
+    title: str
+
+class BookCreate(BookBase):
+    pass
+
+class Book(BookBase):
+    id: int
+    authors: List[Author] = []
+    class Config:
+        from_attributes = True
+
+# Schema for Bookshelves
+class BookshelfBase(BaseModel):
+    name: str
+
+class BookshelfCreate(BookshelfBase):
+    pass
+
+class Bookshelf(BookshelfBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+# Schema for Subjects
+class SubjectBase(BaseModel):
+    name: str
+
+class SubjectCreate(SubjectBase):
+    pass
+
+class Subject(SubjectBase):
+    id: int
+    class Config:
+        from_attributes = True
