@@ -17,3 +17,4 @@ def read_author_by_id(author_id: int, db: Session = Depends(get_db)):
     if not author:
         raise HTTPException(status_code=404, detail="Author not found")
     return author
+

@@ -8,3 +8,4 @@ router = APIRouter()
 @router.get("/")
 def read_bookshelves(db: Session = Depends(get_db)):
     return get_bookshelves(db)
+
