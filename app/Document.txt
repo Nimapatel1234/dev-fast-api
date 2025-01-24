@@ -1,0 +1,186 @@
+# Project Documentation for FastAPI Application
+
+## Clone the Repository
+To clone the repository, use the following commands:
+```bash
+git clone https://github.com/your-repo-url.git
+cd your-repo-directory
+```
+
+## Create a Virtual Environment
+Create and activate a virtual environment for the project:
+
+### Create the virtual environment:
+```bash
+python -m venv env
+```
+
+### Activate the virtual environment:
+- On Windows:
+  ```bash
+  .\env\Scripts\activate
+  ```
+- On macOS/Linux:
+  ```bash
+  source env/bin/activate
+  ```
+
+## Install Dependencies
+Install the required dependencies using:
+```bash
+pip install -r requirements.txt
+```
+
+## Configure the Database and Environment Variables
+Create a `.env` file in the project directory and configure the following environment variables:
+```env
+DATABASE_URL=postgresql://user:password@localhost/dbname
+AWS_ACCESS_KEY_ID=your_aws_access_key
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+```
+Make sure the `DATABASE_URL` matches your PostgreSQL database credentials.
+
+## Run the Application Locally
+Start the application locally using:
+```bash
+uvicorn app.main:app --reload
+```
+
+---
+
+## Deploy the Application on AWS
+
+### 1. Launch an EC2 Instance
+Launch an Amazon EC2 instance (Ubuntu preferred).
+
+Connect to the instance:
+```bash
+ssh -i "your-key-pair.pem" ubuntu@ec2-your-instance-public-ip.compute-1.amazonaws.com
+```
+
+### 2. Set Up the Instance
+Update and install required packages:
+```bash
+sudo apt update
+sudo apt install python3-pip python3-venv
+```
+
+### 3. Clone the Repository on the EC2 Instance
+```bash
+git clone https://github.com/your-repo-url.git
+cd your-repo-directory
+```
+
+### 4. Set Up the Virtual Environment and Install Dependencies
+```bash
+python3 -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+### 5. Run the FastAPI Application
+Run the FastAPI application using:
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+### 6. Install Nginx for Reverse Proxy
+Install and configure Nginx:
+```bash
+sudo apt install nginx
+```
+
+### 7. Set Up HTTPS with Certbot
+Install Certbot and configure HTTPS:
+```bash
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx
+```
+
+---
+
+## Database Models
+Below are the key database models using SQLAlchemy's Automap:
+
+### Automap Models
+```python
+from sqlalchemy.ext.automap import automap_base
+from .database import engine, metadata
+
+# Automap Base
+AutomapBase = automap_base(metadata=metadata)
+
+# Reflect tables
+AutomapBase.prepare(engine, reflect=True)
+
+# Access mapped classes for existing tables
+AuthUser = AutomapBase.classes.auth_user
+AuthGroup = AutomapBase.classes.auth_group
+AuthPermission = AutomapBase.classes.auth_permission
+BooksSubject = AutomapBase.classes.books_subject
+BooksBookSubjects = AutomapBase.classes.books_book_subjects
+BooksBook = AutomapBase.classes.books_book
+BooksAuthor = AutomapBase.classes.books_author
+BooksBookshelf = AutomapBase.classes.books_bookshelf
+BooksFormat = AutomapBase.classes.books_format
+BooksLanguage = AutomapBase.classes.books_language
+DjangoAdminLog = AutomapBase.classes.django_admin_log
+DjangoContentType = AutomapBase.classes.django_content_type
+DjangoMigrations = AutomapBase.classes.django_migrations
+DjangoSession = AutomapBase.classes.django_session
+```
+
+---
+
+## Authentication Implementation
+Use OAuth2 or JWT to secure your API endpoints.
+
+### Example with JWT:
+1. Install `fastapi-jwt-auth`:
+   ```bash
+   pip install fastapi-jwt-auth
+   ```
+
+2. Configure JWT settings:
+   ```python
+   from fastapi import FastAPI, Depends
+   from fastapi_jwt_auth import AuthJWT
+   from pydantic import BaseModel
+
+   class Settings(BaseModel):
+       authjwt_secret_key: str = "your_secret_key"
+
+   @AuthJWT.load_config
+   def get_config():
+       return Settings()
+   ```
+
+3. Protect API Endpoints:
+   ```python
+  
+@router.get("/{author_id}")
+def read_author_by_id(author_id: int, db: Session = Depends(get_db)):
+    """Fetch a single author by ID."""
+    author = db.query(BooksAuthor).filter(BooksAuthor.id == author_id).first()
+    if not author:
+        raise HTTPException(status_code=404, detail="Author not found")
+    return author
+   ```
+
+---
+
+## Testing the API
+Use tools like **Postman** or **curl** to test the API endpoints. Example `curl` commands:
+- Fetch all authors:
+  ```bash
+  curl http://127.0.0.1:8000/authors/
+  ```
+- Fetch a specific author by ID:
+  ```bash
+  curl http://127.0.0.1:8000/authors/3
+  ```
+
+---
+
+This documentation provides a complete guide for setting up, running, and deploying your FastAPI application with a PostgreSQL database, JWT authentication, and auto-mapped database models.
+
