@@ -76,6 +76,12 @@ cd your-repo-directory
 python3 -m venv env
 source env/bin/activate
 pip install -r requirements.txt
+pip install fast-api 
+like this file of router and another file ->
+type nul > app\crud.py
+like this connect with database url -> 
+DATABASE_URL=postgresql://postgres:nima321@localhost:5432/new_book_pro
+
 ```
 
 ### 5. Run the FastAPI Application
